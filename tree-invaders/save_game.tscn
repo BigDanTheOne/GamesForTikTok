@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "# Save System from a text article
+# https://gdscript.com/solutions/how-to-save-and-load-godot-game-data/
+extends Node
+
+
+const SAVE_FILE_PATH = \"user://game_data.json\"
+const PASS = \"3n36rwZk^RGoV3^fF8k3u^48\"
+
+
+var game_data = {
+	\"high_score\": 0.00
+}
+
+
+func save_data():
+	var file = File.new()
+	file.open_encrypted_with_pass(SAVE_FILE_PATH, File.WRITE, PASS)
+	file.store_string(to_json(game_data))
+#	print(\"Save Game saved\")
+	file.close()
+
+func load_data():
+	var file = File.new()
+	if file.file_exists(SAVE_FILE_PATH):
+		file.open_encrypted_with_pass(SAVE_FILE_PATH, File.READ, PASS)
+		var data = parse_json(file.get_as_text())
+		file.close()
+		if typeof(data) == TYPE_DICTIONARY:
+			game_data = data
+#			print(\"Save Game loaded\")
+#		else:
+#			printerr(\"Save Game is corrupt\")
+#	else:
+#		printerr(\"Save Game does not exist\")
+"
+
+[node name="SaveGame" type="Node"]
+script = SubResource( 1 )
