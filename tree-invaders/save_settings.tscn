@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "# Save System from a text article
+# https://gdscript.com/solutions/how-to-save-and-load-godot-game-data/
+extends Node
+
+
+const SAVE_FILE_PATH = \"user://game_settings.json\"
+
+
+var game_settings = {
+	\"audio_volume\": {
+		\"gameplay\": 0,
+		\"rain\": 6
+	},
+	\"particle_effects\": {
+		\"rain\": true,
+		\"explosions\": true
+	},
+	\"screen_shake\": true,
+	\"day_night_cycle_mode\": 0
+}
+
+
+func save_data():
+	var file = File.new()
+	file.open(SAVE_FILE_PATH, File.WRITE)
+	file.store_string(to_json(game_settings))
+#	print(\"Settings saved\")
+	file.close()
+
+func load_data():
+	var file = File.new()
+	if file.file_exists(SAVE_FILE_PATH):
+		file.open(SAVE_FILE_PATH, File.READ)
+		var data = parse_json(file.get_as_text())
+		file.close()
+		if typeof(data) == TYPE_DICTIONARY:
+			game_settings = data
+#			print(\"Settings loaded\")
+#		else:
+#			printerr(\"Settings is corrupt\")
+#	else:
+#		printerr(\"Settings does not exist\")
+"
+
+[node name="SaveSettings" type="Node"]
+script = SubResource( 1 )

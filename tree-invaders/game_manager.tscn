@@ -1,0 +1,78 @@
+[gd_scene load_steps=4 format=2]
+
+[sub_resource type="GDScript" id=1]
+resource_name = "GameManager"
+script/source = "extends Node
+
+
+var score : float = 0.0 setget , get_score
+func get_score(): return score
+func add_score(value): score += value
+var game_over = false setget set_game_over, is_game_over 
+func is_game_over(): return game_over
+func set_game_over(value): game_over = value
+
+
+func _process(delta):
+	
+	if not is_game_over() and not get_tree().is_paused():
+		if score > 0.00:
+			score += 0.01 * delta
+	
+	if is_game_over() and Input.is_action_just_pressed(\"restart\"):
+		score = 0.00
+		set_game_over(false)
+
+
+func enemy_death_effects():
+	get_tree().call_group(\"CameraAnimationPlayer\", \"shake\")
+
+
+func get_high_score():	return get_node(\"HighScore\").get_high_score()
+"
+
+[sub_resource type="GDScript" id=2]
+resource_name = "PauseManager"
+script/source = "extends Node
+
+
+func _process(_delta):
+	
+	if Input.is_action_just_pressed(\"pause\"):
+		if GameManager.is_game_over():
+			get_tree().set_pause( false )
+		else:
+			get_tree().set_pause( !get_tree().is_paused() )
+"
+
+[sub_resource type="GDScript" id=3]
+resource_name = "HighScore"
+script/source = "extends Node
+
+
+var high_score = 0.00 setget , get_high_score
+func get_high_score(): return high_score
+
+
+func _ready():
+	SaveGame.load_data()
+	high_score = SaveGame.game_data[\"high_score\"]
+
+
+func _process(_delta):
+	if GameManager.get_score() > high_score:
+		high_score = GameManager.get_score()
+		SaveGame.game_data[\"high_score\"] = high_score
+		SaveGame.save_data()
+"
+
+[node name="GameManager" type="Node"]
+pause_mode = 2
+script = SubResource( 1 )
+
+[node name="PauseManager" type="Node" parent="."]
+pause_mode = 2
+script = SubResource( 2 )
+
+[node name="HighScore" type="Node" parent="."]
+script = SubResource( 3 )

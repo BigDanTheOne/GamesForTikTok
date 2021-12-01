@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+resource_name = "SettingsManager"
+script/source = "extends Node
+
+
+var cursor_hidden = false;
+
+
+func _process(_delta):
+	
+	if Input.is_action_just_pressed(\"hide_cursor\"):
+		cursor_hidden = !cursor_hidden
+	
+	if cursor_hidden and not get_tree().is_paused():
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
+	
+	if Input.is_action_just_pressed(\"fullscreen\"):
+		OS.set_window_fullscreen( !OS.is_window_fullscreen() )
+		cursor_hidden = OS.is_window_fullscreen()
+"
+
+[node name="WindowManager" type="Node"]
+pause_mode = 2
+script = SubResource( 1 )

@@ -1,0 +1,2091 @@
+[gd_scene load_steps=73 format=2]
+
+[ext_resource path="res://fonts/noto_sans_regular.tres" type="DynamicFont" id=1]
+[ext_resource path="res://sound_enhancer.gd" type="Script" id=2]
+[ext_resource path="res://destroy_on_android.gd" type="Script" id=3]
+[ext_resource path="res://textures/ui_checkbutton_off.svg" type="Texture" id=4]
+[ext_resource path="res://textures/circle.svg" type="Texture" id=5]
+[ext_resource path="res://fonts/noto_sans_large.tres" type="DynamicFont" id=6]
+[ext_resource path="res://fonts/noto_mono.ttf" type="DynamicFontData" id=7]
+[ext_resource path="res://textures/tree.svg" type="Texture" id=8]
+[ext_resource path="res://enemies/enemy_zigzagger_lv1.tscn" type="PackedScene" id=9]
+[ext_resource path="res://sounds/rain.ogg" type="AudioStream" id=10]
+[ext_resource path="res://enemies/enemy_forewardgoer_transparent_lv2.tscn" type="PackedScene" id=11]
+[ext_resource path="res://styleboxempty.tres" type="StyleBox" id=12]
+[ext_resource path="res://textures/ui_checkbutton_on.svg" type="Texture" id=13]
+[ext_resource path="res://enemies/enemy_zigzagger_lv2.tscn" type="PackedScene" id=14]
+[ext_resource path="res://enemies/enemy_forewardgoer_lv1.tscn" type="PackedScene" id=15]
+[ext_resource path="res://enemies/enemy_forewardgoer_transparent_lv1.tscn" type="PackedScene" id=16]
+[ext_resource path="res://enemies/enemy_sidewaysgoer_lv1_right.tscn" type="PackedScene" id=17]
+[ext_resource path="res://textures/color_rect.svg" type="Texture" id=18]
+[ext_resource path="res://textures/forest-background.svg" type="Texture" id=19]
+[ext_resource path="res://textures/ui_slider_knob.svg" type="Texture" id=20]
+[ext_resource path="res://sounds/laser.ogg" type="AudioStream" id=21]
+[ext_resource path="res://enemies/enemy_forewardgoer_lv2.tscn" type="PackedScene" id=22]
+[ext_resource path="res://textures/godot_icon.svg" type="Texture" id=23]
+[ext_resource path="res://enemies/enemy_sidewaysgoer_lv1_left.tscn" type="PackedScene" id=24]
+[ext_resource path="res://buttongroup_daynight_settings.tres" type="ButtonGroup" id=25]
+[ext_resource path="res://textures/ui_radiobutton_selected.svg" type="Texture" id=26]
+[ext_resource path="res://textures/ui_radiobutton.svg" type="Texture" id=27]
+
+[sub_resource type="CanvasItemMaterial" id=1]
+particles_animation = true
+particles_anim_h_frames = 16
+particles_anim_v_frames = 16
+particles_anim_loop = false
+
+[sub_resource type="Animation" id=2]
+length = 0.1
+step = 1.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="Animation" id=3]
+length = 0.4
+tracks/0/type = "value"
+tracks/0/path = NodePath("..:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 5, 0 ), Vector2( -2.5, 0 ), Vector2( 1.25, 0 ), Vector2( -0.625, 0 ), Vector2( 0, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("../HUD:offset")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 5, 0 ), Vector2( 0, -2.5 ), Vector2( 1.25, 0 ), Vector2( -0.625, 0 ), Vector2( 0, 0 ) ]
+}
+
+[sub_resource type="GDScript" id=4]
+script/source = "extends AnimationPlayer
+
+
+func shake():
+	if SaveSettings.game_settings[\"screen_shake\"] == true:
+		play(\"Shake\")
+"
+
+[sub_resource type="DynamicFont" id=5]
+size = 50
+font_data = ExtResource( 7 )
+
+[sub_resource type="GDScript" id=6]
+resource_name = "ScoreDisplay"
+script/source = "extends Label
+
+
+func _process(_delta):
+	
+	if GameManager.get_score() < 1_000:
+		self.text = String(GameManager.get_score())\\
+				.pad_decimals(2).pad_zeros(3)
+	elif GameManager.get_score() < 1_100:
+		self.text = \"#\" + String(GameManager.get_score() - 1_000)\\
+				.pad_decimals(2).pad_zeros(2)
+	elif GameManager.get_score() < 1_110:
+		self.text = \"##\" + String(GameManager.get_score() - 1_100)\\
+				.pad_decimals(2).pad_zeros(1)
+	elif GameManager.get_score() < 1_111:
+		self.text = \"###.##\"
+"
+
+[sub_resource type="GDScript" id=7]
+resource_name = "HighScoreDisplay"
+script/source = "extends Label
+
+
+func _process(_delta):
+	
+	if GameManager.get_high_score() < 1_000:
+		self.text = String(GameManager.get_high_score())\\
+				.pad_decimals(2).pad_zeros(3)
+	elif GameManager.get_high_score() < 1_100:
+		self.text = \"#\" + String(GameManager.get_high_score() - 1_000)\\
+				.pad_decimals(2).pad_zeros(2)
+	elif GameManager.get_high_score() < 1_110:
+		self.text = \"##\" + String(GameManager.get_high_score() - 1_100)\\
+				.pad_decimals(2).pad_zeros(1)
+	elif GameManager.get_high_score() < 1_111:
+		self.text = \"###.##\"
+"
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.0352941, 0.25098, 0.254902, 0.627451 )
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id=9]
+bg_color = Color( 0.0117647, 0.14902, 0.203922, 0.752941 )
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id=10]
+bg_color = Color( 0.0470588, 0.317647, 0.278431, 0.501961 )
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="GDScript" id=11]
+resource_local_to_scene = true
+script/source = "extends Button
+
+
+func _on_pressed():
+	Input.action_press(\"restart\")
+	yield(get_tree().create_timer(0.1), \"timeout\")
+	Input.action_release(\"restart\")
+"
+
+[sub_resource type="GDScript" id=12]
+resource_name = "RestartTextAndroid"
+script/source = "extends Node
+
+
+func _ready():
+	if not OS.get_name() == \"Android\" or OS.get_name() == \"iOS\":
+		queue_free()
+"
+
+[sub_resource type="StyleBoxLine" id=13]
+color = Color( 1, 1, 1, 0.501961 )
+thickness = 10
+
+[sub_resource type="StyleBoxLine" id=14]
+color = Color( 1, 1, 1, 1 )
+thickness = 10
+
+[sub_resource type="GDScript" id=15]
+script/source = "extends HSlider
+
+
+func _ready():
+	SaveSettings.load_data()
+	value = db2linear(SaveSettings.game_settings[\"audio_volume\"][\"gameplay\"])
+	AudioServer.set_bus_volume_db \\
+			(1, SaveSettings.game_settings[\"audio_volume\"][\"gameplay\"])
+
+
+func _on_value_changed(value):
+	SaveSettings.game_settings[\"audio_volume\"][\"gameplay\"] = linear2db(value)
+	AudioServer.set_bus_volume_db(1, linear2db(value))
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=16]
+script/source = "extends HSlider
+
+
+func _ready():
+	SaveSettings.load_data()
+	value = db2linear(SaveSettings.game_settings[\"audio_volume\"][\"rain\"])
+	AudioServer.set_bus_volume_db \\
+			(2, SaveSettings.game_settings[\"audio_volume\"][\"rain\"])
+
+
+func _on_value_changed(value):
+	SaveSettings.game_settings[\"audio_volume\"][\"rain\"] = linear2db(value)
+	AudioServer.set_bus_volume_db(2, linear2db(value))
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=17]
+script/source = "extends CheckButton
+
+
+onready var rain_particle_emitter = \\
+		get_tree().get_nodes_in_group(\"RainParticleEmitters\")[0]
+
+
+func _ready():
+	SaveSettings.load_data()
+	pressed = SaveSettings.game_settings[\"particle_effects\"][\"rain\"]
+
+
+func _on_toggled(button_pressed):
+	SaveSettings.game_settings[\"particle_effects\"][\"rain\"] = button_pressed
+	rain_particle_emitter.visible = button_pressed
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=18]
+script/source = "extends CheckButton
+
+
+func _ready():
+	SaveSettings.load_data()
+	pressed = SaveSettings.game_settings[\"particle_effects\"][\"explosions\"]
+
+
+func _on_toggled(button_pressed):
+	SaveSettings.game_settings[\"particle_effects\"][\"explosions\"] \\
+			= button_pressed
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=19]
+script/source = "extends CheckButton
+
+
+func _ready():
+	SaveSettings.load_data()
+	pressed = SaveSettings.game_settings[\"screen_shake\"]
+
+
+func _on_toggled(button_pressed):
+	SaveSettings.game_settings[\"screen_shake\"] = button_pressed
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=20]
+script/source = "extends CheckBox
+
+
+func _ready():
+	SaveSettings.load_data()
+
+
+func _on_toggled(_button_pressed):
+	SaveSettings.game_settings[\"day_night_cycle_mode\"] = 0
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=21]
+script/source = "extends CheckBox
+
+
+func _ready():
+	SaveSettings.load_data()
+
+
+func _on_toggled(_button_pressed):
+	SaveSettings.game_settings[\"day_night_cycle_mode\"] = 1
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=22]
+script/source = "extends CheckBox
+
+
+func _ready():
+	SaveSettings.load_data()
+
+
+func _on_toggled(_button_pressed):
+	SaveSettings.game_settings[\"day_night_cycle_mode\"] = 2
+	SaveSettings.save_data()
+"
+
+[sub_resource type="GDScript" id=23]
+resource_local_to_scene = true
+script/source = "extends Control
+
+
+func _ready():
+	if not ( OS.get_name() == \"Android\" or OS.get_name() == \"iOS\" ):
+		queue_free()
+
+
+func _on_pressed():
+	Input.action_press(\"pause\")
+	yield(get_tree().create_timer(0.1), \"timeout\")
+	Input.action_release(\"pause\")
+"
+
+[sub_resource type="GDScript" id=24]
+script/source = "extends Label
+
+
+func _on_button_pressed():
+	if get_tree().is_paused():
+		set_text(tr(\"PAUSE_BUTTON\"))
+	else:
+		set_text(tr(\"UNPAUSE_BUTTON\"))
+"
+
+[sub_resource type="Animation" id=25]
+length = 0.05
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("Title:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Score:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Highscore:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("PauseUI:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("PauseUI:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("GameOverUI:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("GameOverUI:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("Credits:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("PauseButton:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PoolRealArray( 0, 0.05 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/9/type = "value"
+tracks/9/path = NodePath("PauseButton:visible")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+
+[sub_resource type="Animation" id=26]
+length = 0.05
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("Title:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Score:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Highscore:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("PauseUI:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("PauseUI:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("../../BackgroundColorRect:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("Credits:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=27]
+length = 60.0
+step = 5.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Title:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 55, 60 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Score:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 50, 60 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.643137 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Highscore:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 55, 60 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("GameOverUI:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("GameOverUI:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("PauseUI:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("PauseUI:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("../../BackgroundColorRect:modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("Credits:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PoolRealArray( 0, 55, 60 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/9/type = "value"
+tracks/9/path = NodePath("PauseButton:modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/10/type = "value"
+tracks/10/path = NodePath("PauseButton:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[sub_resource type="Animation" id=28]
+length = 0.05
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("Title:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Score:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0.643137 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Highscore:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("PauseUI:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("PauseUI:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("../../BackgroundColorRect:modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("GameOverUI:modulate")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("GameOverUI:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("Credits:modulate")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ) ]
+}
+tracks/9/type = "value"
+tracks/9/path = NodePath("PauseButton:modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PoolRealArray( 0.05 ),
+"transitions": PoolRealArray( 1 ),
+"update": 3,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/10/type = "value"
+tracks/10/path = NodePath("PauseButton:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[sub_resource type="GDScript" id=29]
+script/source = "extends AnimationPlayer
+
+
+func _process(_delta):
+	
+	if not GameManager.is_game_over():
+		if get_tree().is_paused():
+			set_current_animation(\"Pause\")
+		else:
+			if not get_current_animation() == \"Start\":
+				set_current_animation(\"Unpause\")
+	else:
+		set_current_animation(\"GameOver\")
+"
+
+[sub_resource type="GDScript" id=30]
+script/source = "extends Sprite
+
+
+export var normal_modulate = Color(\"#ffffff\")
+export var rain_modulate : Color
+
+onready var tween = get_node(\"Tween\")
+onready var rain_particle_emitter = \\
+		get_tree().get_nodes_in_group(\"RainParticleEmitters\")[0]
+
+func _process(_delta):
+	if rain_particle_emitter.is_emitting():
+		tween.interpolate_property(self, \"modulate\",
+				modulate, rain_modulate, 1,
+				Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+		tween.start()
+	else:
+		tween.interpolate_property(self, \"modulate\",
+				modulate, normal_modulate, 1,
+				Tween.TRANS_SINE, Tween.EASE_IN_OUT)
+		tween.start()
+"
+
+[sub_resource type="GDScript" id=31]
+script/source = "extends Node2D
+
+var starting_scale = Vector2(0.2, 0.2)
+
+func _ready():
+	self.scale = starting_scale
+
+
+var growth_speed = 0.01
+var was_game_over = false;
+onready var tween = get_node(\"Tween\")
+
+func _process(delta):
+	if not GameManager.is_game_over():
+		if not self.was_game_over:
+			if GameManager.get_score() > 0.00:
+				self.scale.x += growth_speed * delta
+				self.scale.y += growth_speed * delta
+		else:
+			tween.interpolate_property(self, \"scale\",
+					self.scale, starting_scale, 0.1,
+					Tween.TRANS_BACK, Tween.EASE_OUT)
+			tween.start()
+			self.was_game_over = false
+	else:
+		self.was_game_over = true
+"
+
+[sub_resource type="GDScript" id=32]
+script/source = "extends Node2D
+
+
+onready var laser_animation_player = get_node(\"Laser/AnimationPlayer\")
+
+
+func _process(_delta):
+	
+	if not GameManager.is_game_over():
+		if Input.is_action_just_pressed(\"shoot\") and \\
+				not pause_button_down:
+					_fire_laser()
+		else:
+			if laser_animation_player.get_current_animation() == \"Retract\":
+				laser_animation_player.set_current_animation(\"Idle\")
+	else:
+		laser_animation_player.set_current_animation(\"Retract\")
+
+
+func _input(event):
+	
+	if event is InputEventMouse:
+		self.position.x = event.position.x
+
+
+var laser_cost = 1 setget , get_laser_cost
+func get_laser_cost(): return laser_cost
+func _fire_laser():
+	if not laser_animation_player.get_current_animation() == \"Shoot\":
+		laser_animation_player.set_current_animation(\"Shoot\")
+		if GameManager.get_score() > laser_cost + 1.0:
+			GameManager.add_score(-laser_cost)
+
+
+var pause_button_down = false
+func _on_pause_button_down():
+	pause_button_down = true
+	yield(get_tree().create_timer(0.1), \"timeout\")
+	pause_button_down = false
+"
+
+[sub_resource type="Animation" id=33]
+length = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Laser/Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 2 ), Vector2( 0.025, 2 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Laser/Sprite:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.25098 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Laser/LaserArea/CollisionShape2D:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ Vector2( 0, 2000 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("Laser/Light2D:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+
+[sub_resource type="Animation" id=34]
+length = 99999.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Laser/Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0.025, 2 ), Vector2( 0, 2 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Laser/Sprite:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.25098 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Laser/Light2D:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("Laser/LaserArea/CollisionShape2D:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 2000 ) ]
+}
+
+[sub_resource type="Animation" id=35]
+length = 0.6
+step = 0.01
+tracks/0/type = "value"
+tracks/0/path = NodePath("Laser/Sprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.3, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0.03, 2 ), Vector2( 0, 2 ), Vector2( 0, 2 ), Vector2( 0.025, 2 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Laser/Sprite:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1, 0.3, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 0.913725, 0.0313726, 0.278431, 1 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.25098 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Laser/Light2D:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("Laser/Light2D:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.100262 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("Laser/AnimationPlayer:current_animation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.1 ),
+"transitions": PoolRealArray( 1 ),
+"update": 2,
+"values": [ "Idle" ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("Laser/LaserArea/CollisionShape2D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0, 0.09 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, 2000 ) ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("Laser/AudioStreamPlayer2D:playing")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[sub_resource type="RectangleShape2D" id=36]
+extents = Vector2( 40, 1000 )
+
+[sub_resource type="Gradient" id=37]
+offsets = PoolRealArray( 0, 0.00458716, 0.545872, 1 )
+colors = PoolColorArray( 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0 )
+
+[sub_resource type="GradientTexture" id=38]
+gradient = SubResource( 37 )
+width = 128
+
+[sub_resource type="GDScript" id=39]
+script/source = "extends Area2D
+
+
+func _on_body_entered(body):
+	if body.is_in_group(\"Enemies\"):
+		GameManager.set_game_over(true)
+"
+
+[sub_resource type="RectangleShape2D" id=40]
+extents = Vector2( 320, 80 )
+
+[sub_resource type="GDScript" id=41]
+script/source = "extends CPUParticles2D
+
+
+func _on_toggle_timer_timeout():
+	emitting = not emitting
+"
+
+[sub_resource type="GDScript" id=42]
+script/source = "extends AudioStreamPlayer
+
+
+onready var rain_particles = get_node(\"..\")
+
+
+func _process(delta):
+	if rain_particles.is_emitting() == false:
+		if volume_db > -80:
+			volume_db -= delta * 20
+		elif volume_db < -80:
+			volume_db = -80
+	else:
+		if volume_db < 0:
+			volume_db += delta * 60
+		elif volume_db > 0:
+			volume_db = 0
+"
+
+[sub_resource type="GDScript" id=43]
+script/source = "extends Timer
+
+
+func _ready():      randomize_wait_time()
+func _on_timeout(): randomize_wait_time()
+
+func randomize_wait_time():
+	wait_time = rand_range(60, 240)
+
+
+func _process(_delta):
+	set_paused( GameManager.is_game_over() )
+"
+
+[sub_resource type="GDScript" id=44]
+script/source = "extends Node2D
+
+
+var randomizer = RandomNumberGenerator.new()
+var minimum_position_x : int =   50
+var maximum_position_x : int =  550
+var minimum_position_y : int = - 50
+var maximum_position_y : int = -200
+
+export var enemy_forewardgoer_lv1: PackedScene
+export var enemy_forewardgoer_lv2: PackedScene
+export var enemy_forewardgoer_transparent_lv1: PackedScene
+export var enemy_forewardgoer_transparent_lv2: PackedScene
+export var enemy_zigzagger_lv1: PackedScene
+export var enemy_zigzagger_lv2: PackedScene
+export var enemy_sidewaysgoer_lv1_left: PackedScene
+export var enemy_sidewaysgoer_lv1_right: PackedScene
+
+
+func _ready():
+	randomize()
+	spawn_phase010()
+	randomize()
+	spawn_phase010()
+	randomize()
+	spawn_phase010()
+	randomize()
+	spawn_phase010()
+	randomize()
+
+
+onready var spawn_timer = get_node(\"SpawnTimer\")
+var default_spawn_interval = 1.0
+
+func _on_SpawnTimer_timeout():
+	
+	randomize()
+	
+	if not GameManager.is_game_over():
+		if GameManager.get_score() < 5:
+			spawn_phase010()
+		elif GameManager.get_score() > 5 and GameManager.get_score() < 15:
+			spawn_phase020()
+		elif GameManager.get_score() > 15 and GameManager.get_score() < 20:
+			spawn_phase030()
+		elif GameManager.get_score() > 20 and GameManager.get_score() < 50:
+			spawn_phase040()
+		elif GameManager.get_score() > 50 and GameManager.get_score() < 60:
+			spawn_phase050()
+		elif GameManager.get_score() > 60 and GameManager.get_score() < 80:
+			spawn_phase060()
+		elif GameManager.get_score() > 80 and GameManager.get_score() < 100:
+			spawn_phase070()
+		elif GameManager.get_score() > 100:
+			spawn_phase080()
+	
+	spawn_timer.set_wait_time \\
+			(default_spawn_interval - GameManager.get_score() * 0.005)
+
+
+func spawn_phase010():
+	var random_number = randomizer.randi_range(1, 2)
+	if random_number == 1:
+		get_parent().call_deferred(\"add_child\", enemy_sidewaysgoer_lv1_left.instance() )
+	else:
+		get_parent().call_deferred(\"add_child\", enemy_sidewaysgoer_lv1_right.instance() )
+
+func spawn_phase020():
+	var random_number = randomizer.randi_range(1, 4)
+	if random_number == 1:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	else:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+
+func spawn_phase030():
+	var random_number = randomizer.randi_range(1, 4)
+	if random_number == 1:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	elif random_number > 2 and random_number < 6:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 6 or random_number == 7:
+		get_parent().add_child( enemy_forewardgoer_lv2.instance() )
+
+func spawn_phase040():
+	var random_number = randomizer.randi_range(1, 11)
+	if random_number == 1:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	elif random_number == 3 or random_number == 4:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 5 or random_number == 6:
+		get_parent().add_child( enemy_forewardgoer_lv2.instance() )
+	elif random_number > 6 and random_number < 10:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv1.instance() )
+	elif random_number == 10 or random_number == 11:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv2.instance() )
+
+func spawn_phase050():
+	var random_number = randomizer.randi_range(3, 13)
+	if random_number == 3:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 4:
+		get_parent().add_child( enemy_forewardgoer_lv2.instance() )
+	elif random_number == 5:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv1.instance() )
+	elif random_number == 6:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv2.instance() )
+	elif random_number > 6 and random_number < 11:
+		get_parent().add_child( enemy_zigzagger_lv1.instance() )
+	elif random_number > 10 and random_number < 14:
+		get_parent().add_child( enemy_zigzagger_lv2.instance() )
+
+func spawn_phase060():
+	var random_number = randomizer.randi_range(1, 8)
+	if random_number == 1:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	elif random_number == 3:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 4:
+		get_parent().add_child( enemy_forewardgoer_lv2.instance() )
+	elif random_number == 5:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv1.instance() )
+	elif random_number == 6:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv2.instance() )
+	elif random_number == 7:
+		get_parent().add_child( enemy_zigzagger_lv1.instance() )
+	elif random_number == 8:
+		get_parent().add_child( enemy_zigzagger_lv2.instance() )
+
+func spawn_phase070():
+	var random_number = randomizer.randi_range(1, 6)
+	if random_number == 1:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	elif random_number == 3:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 4:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv1.instance() )
+	elif random_number == 5:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv2.instance() )
+	elif random_number == 6:
+		get_parent().add_child( enemy_zigzagger_lv1.instance() )
+
+func spawn_phase080():
+	var random_number = randomizer.randi_range(-1, 6)
+	if random_number == -1 or random_number == 0:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_left.instance() )
+	elif random_number == 1 or random_number == 2:
+		get_parent().add_child( enemy_sidewaysgoer_lv1_right.instance() )
+	elif random_number == 3:
+		get_parent().add_child( enemy_forewardgoer_lv1.instance() )
+	elif random_number == 4:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv1.instance() )
+	elif random_number == 5:
+		get_parent().add_child( enemy_forewardgoer_transparent_lv2.instance() )
+	elif random_number == 6:
+		get_parent().add_child( enemy_zigzagger_lv1.instance() )
+"
+
+[sub_resource type="GDScript" id=45]
+script/source = "# Day-Night-Cycle
+# Courtesy of a video tutorial
+# https://youtu.be/j_FMsL_ru1w
+extends CanvasModulate
+
+const DAY_COLOR = Color(\"#ffffff\")
+const NIGHT_COLOR = Color(\"#4377bb\")
+
+const TIME_SCALE = 0.03
+var time = 0.0
+
+
+func _process(delta):
+	
+	if not get_tree().is_paused() and not GameManager.is_game_over():
+		time += delta * TIME_SCALE
+	
+	if SaveSettings.game_settings[\"day_night_cycle_mode\"] == 0:
+		color = NIGHT_COLOR.linear_interpolate(DAY_COLOR, (cos(time)+1)/2 )
+	elif SaveSettings.game_settings[\"day_night_cycle_mode\"] == 1:
+		color = DAY_COLOR
+	elif SaveSettings.game_settings[\"day_night_cycle_mode\"] == 2:
+		color = NIGHT_COLOR
+"
+
+[node name="Node2D" type="Node2D"]
+material = SubResource( 1 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2( 300, 512 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Camera2D" groups=["CameraAnimationPlayer"]]
+autoplay = "Idle"
+anims/Idle = SubResource( 2 )
+anims/Shake = SubResource( 3 )
+script = SubResource( 4 )
+
+[node name="HUD" type="CanvasLayer" parent="."]
+pause_mode = 2
+
+[node name="BackgroundColorRect" type="ColorRect" parent="HUD"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.0117647, 0.14902, 0.203922, 0.501961 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control" type="Control" parent="HUD"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="HUD/Control/VBoxContainer"]
+margin_right = 580.0
+margin_bottom = 69.0
+size_flags_vertical = 1
+custom_colors/font_color = Color( 1, 1, 1, 0.501961 )
+custom_fonts/font = ExtResource( 6 )
+text = "Tree Invaders"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Score" type="Label" parent="HUD/Control/VBoxContainer"]
+margin_top = 73.0
+margin_right = 580.0
+margin_bottom = 133.0
+size_flags_vertical = 1
+custom_fonts/font = SubResource( 5 )
+text = "000.00"
+align = 1
+script = SubResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Highscore" type="Label" parent="HUD/Control/VBoxContainer"]
+margin_top = 137.0
+margin_right = 580.0
+margin_bottom = 197.0
+size_flags_vertical = 1
+custom_colors/font_color = Color( 1, 1, 1, 0.501961 )
+custom_fonts/font = SubResource( 5 )
+text = "000.00"
+align = 1
+script = SubResource( 7 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GameOverUI" type="VBoxContainer" parent="HUD/Control/VBoxContainer"]
+margin_top = 201.0
+margin_right = 580.0
+margin_bottom = 270.0
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="GameOverMessage" type="Label" parent="HUD/Control/VBoxContainer/GameOverUI"]
+margin_right = 580.0
+margin_bottom = 69.0
+size_flags_vertical = 1
+custom_colors/font_color = Color( 1, 1, 1, 0.501961 )
+custom_fonts/font = ExtResource( 6 )
+text = "GAME_OVER"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RestartButton" type="Button" parent="HUD/Control/VBoxContainer/GameOverUI"]
+visible = false
+margin_top = 73.0
+margin_right = 580.0
+margin_bottom = 173.0
+rect_min_size = Vector2( 0, 100 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_styles/hover = SubResource( 8 )
+custom_styles/pressed = SubResource( 9 )
+custom_styles/focus = ExtResource( 12 )
+custom_styles/disabled = ExtResource( 12 )
+custom_styles/normal = SubResource( 10 )
+shortcut_in_tooltip = false
+script = SubResource( 11 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="RestartControls" type="Label" parent="HUD/Control/VBoxContainer/GameOverUI/RestartButton"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_colors/font_color = Color( 1, 1, 1, 0.752941 )
+custom_fonts/font = ExtResource( 1 )
+text = "RESTART"
+align = 1
+valign = 1
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RestartAndroid" type="Label" parent="HUD/Control/VBoxContainer/GameOverUI/RestartButton"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_colors/font_color = Color( 1, 1, 1, 0.752941 )
+custom_fonts/font = ExtResource( 1 )
+text = "RESTART_ANDROID"
+align = 1
+valign = 1
+script = SubResource( 12 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PauseUI" type="VBoxContainer" parent="HUD/Control/VBoxContainer"]
+margin_top = 274.0
+margin_right = 580.0
+margin_bottom = 861.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/Control/VBoxContainer/PauseUI"]
+margin_right = 580.0
+margin_bottom = 587.0
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Empty1" type="Control" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer"]
+margin_right = 111.0
+margin_bottom = 587.0
+size_flags_horizontal = 3
+
+[node name="Settings" type="VBoxContainer" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer"]
+pause_mode = 2
+margin_left = 115.0
+margin_right = 465.0
+margin_bottom = 587.0
+rect_min_size = Vector2( 350, 0 )
+size_flags_stretch_ratio = 3.0
+custom_constants/separation = 8
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VolumeSliderTitle" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 41.0
+margin_right = 350.0
+margin_bottom = 69.0
+custom_fonts/font = ExtResource( 1 )
+text = "HEADING_SOUND_VOLUME"
+align = 1
+
+[node name="VolumeSliderTitleGameplay" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 77.0
+margin_right = 350.0
+margin_bottom = 105.0
+custom_fonts/font = ExtResource( 1 )
+text = "SOUND_VOLUME_GAMEPLAY"
+
+[node name="VolumeSliderGameplay" type="HSlider" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 113.0
+margin_right = 350.0
+margin_bottom = 133.0
+custom_icons/grabber_highlight = ExtResource( 20 )
+custom_icons/grabber = ExtResource( 20 )
+custom_styles/slider = SubResource( 13 )
+custom_styles/grabber_area_highlight = SubResource( 14 )
+custom_styles/grabber_area = SubResource( 14 )
+min_value = 0.001
+max_value = 1.0
+step = 0.001
+value = 1.0
+script = SubResource( 15 )
+
+[node name="VolumeSliderTitleRain" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 141.0
+margin_right = 350.0
+margin_bottom = 169.0
+custom_fonts/font = ExtResource( 1 )
+text = "SOUND_VOLUME_RAIN"
+
+[node name="VolumeSliderRain" type="HSlider" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 177.0
+margin_right = 350.0
+margin_bottom = 197.0
+custom_icons/grabber_highlight = ExtResource( 20 )
+custom_icons/grabber = ExtResource( 20 )
+custom_styles/slider = SubResource( 13 )
+custom_styles/grabber_area_highlight = SubResource( 14 )
+custom_styles/grabber_area = SubResource( 14 )
+min_value = 0.001
+max_value = 1.995
+step = 0.001
+value = 1.995
+script = SubResource( 16 )
+
+[node name="ParticleToggleTitle" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 205.0
+margin_right = 350.0
+margin_bottom = 233.0
+custom_fonts/font = ExtResource( 1 )
+text = "HEADING_PARTICLES"
+align = 1
+
+[node name="ParticleToggleRain" type="CheckButton" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 241.0
+margin_right = 350.0
+margin_bottom = 269.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/off = ExtResource( 4 )
+custom_icons/on = ExtResource( 13 )
+custom_styles/hover = ExtResource( 12 )
+custom_styles/pressed = ExtResource( 12 )
+custom_styles/focus = ExtResource( 12 )
+custom_styles/disabled = ExtResource( 12 )
+custom_styles/hover_pressed = ExtResource( 12 )
+custom_styles/normal = ExtResource( 12 )
+pressed = true
+text = "PARTICLES_RAIN"
+script = SubResource( 17 )
+
+[node name="ParticleToggleExplosions" type="CheckButton" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 277.0
+margin_right = 350.0
+margin_bottom = 305.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/off = ExtResource( 4 )
+custom_icons/on = ExtResource( 13 )
+custom_styles/hover = ExtResource( 12 )
+custom_styles/pressed = ExtResource( 12 )
+custom_styles/focus = ExtResource( 12 )
+custom_styles/disabled = ExtResource( 12 )
+custom_styles/hover_pressed = ExtResource( 12 )
+custom_styles/normal = ExtResource( 12 )
+pressed = true
+text = "PARTICLES_EXPLOSIONS"
+script = SubResource( 18 )
+
+[node name="OtherSettingsTitle" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 313.0
+margin_right = 350.0
+margin_bottom = 341.0
+custom_fonts/font = ExtResource( 1 )
+text = "SCREEN_SHAKE"
+align = 1
+
+[node name="ScreenShakeToggle" type="CheckButton" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 349.0
+margin_right = 350.0
+margin_bottom = 377.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/off = ExtResource( 4 )
+custom_icons/on = ExtResource( 13 )
+custom_styles/hover = ExtResource( 12 )
+custom_styles/pressed = ExtResource( 12 )
+custom_styles/focus = ExtResource( 12 )
+custom_styles/disabled = ExtResource( 12 )
+custom_styles/hover_pressed = ExtResource( 12 )
+custom_styles/normal = ExtResource( 12 )
+pressed = true
+script = SubResource( 19 )
+
+[node name="DayNightSettingsTitle" type="Label" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 385.0
+margin_right = 350.0
+margin_bottom = 413.0
+custom_fonts/font = ExtResource( 1 )
+text = "HEADING_DAY_NIGHT_CYCLE"
+align = 1
+
+[node name="DayNightCycleToggle" type="CheckBox" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 421.0
+margin_right = 350.0
+margin_bottom = 457.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/radio_checked = ExtResource( 26 )
+custom_icons/radio_unchecked = ExtResource( 27 )
+custom_styles/focus = ExtResource( 12 )
+pressed = true
+group = ExtResource( 25 )
+text = "DAY_NIGHT_CYCLE_MODE_0"
+script = SubResource( 20 )
+
+[node name="DaytimeToggle" type="CheckBox" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 465.0
+margin_right = 350.0
+margin_bottom = 501.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/radio_checked = ExtResource( 26 )
+custom_icons/radio_unchecked = ExtResource( 27 )
+custom_styles/focus = ExtResource( 12 )
+group = ExtResource( 25 )
+text = "DAY_NIGHT_CYCLE_MODE_1"
+script = SubResource( 21 )
+
+[node name="NighttimeToggle" type="CheckBox" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings"]
+margin_top = 509.0
+margin_right = 350.0
+margin_bottom = 545.0
+custom_colors/font_color_hover_pressed = Color( 1, 1, 1, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 1, 1, 1, 1 )
+custom_colors/font_color_pressed = Color( 1, 1, 1, 1 )
+custom_fonts/font = ExtResource( 1 )
+custom_icons/radio_checked = ExtResource( 26 )
+custom_icons/radio_unchecked = ExtResource( 27 )
+custom_styles/focus = ExtResource( 12 )
+group = ExtResource( 25 )
+text = "DAY_NIGHT_CYCLE_MODE_2"
+script = SubResource( 22 )
+
+[node name="Empty2" type="Control" parent="HUD/Control/VBoxContainer/PauseUI/HBoxContainer"]
+margin_left = 469.0
+margin_right = 580.0
+margin_bottom = 587.0
+size_flags_horizontal = 3
+
+[node name="Empty" type="Control" parent="HUD/Control/VBoxContainer"]
+margin_top = 865.0
+margin_right = 580.0
+margin_bottom = 868.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.01
+
+[node name="Credits" type="HBoxContainer" parent="HUD/Control/VBoxContainer"]
+margin_top = 872.0
+margin_right = 580.0
+margin_bottom = 900.0
+
+[node name="Text1" type="Label" parent="HUD/Control/VBoxContainer/Credits"]
+margin_right = 273.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 1, 1, 1, 0.501961 )
+custom_fonts/font = ExtResource( 1 )
+text = "@Sosasees on itch.io  "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GodotIcon" type="TextureRect" parent="HUD/Control/VBoxContainer/Credits"]
+self_modulate = Color( 1, 1, 1, 0.501961 )
+margin_left = 277.0
+margin_right = 302.0
+margin_bottom = 28.0
+texture = ExtResource( 23 )
+stretch_mode = 3
+
+[node name="Text2" type="Label" parent="HUD/Control/VBoxContainer/Credits"]
+margin_left = 306.0
+margin_right = 580.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+custom_colors/font_color = Color( 1, 1, 1, 0.501961 )
+custom_fonts/font = ExtResource( 1 )
+text = "  GoGodotJam (2021)"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PauseButton" type="Button" parent="HUD/Control/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 904.0
+margin_right = 580.0
+margin_bottom = 1004.0
+rect_min_size = Vector2( 0, 100 )
+custom_styles/hover = SubResource( 8 )
+custom_styles/pressed = SubResource( 9 )
+custom_styles/focus = ExtResource( 12 )
+custom_styles/disabled = ExtResource( 12 )
+custom_styles/normal = SubResource( 10 )
+shortcut_in_tooltip = false
+script = SubResource( 23 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="HUD/Control/VBoxContainer/PauseButton"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_colors/font_color = Color( 1, 1, 1, 0.752941 )
+custom_fonts/font = ExtResource( 1 )
+text = "PAUSE_BUTTON"
+align = 1
+valign = 1
+script = SubResource( 24 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HUD/Control/VBoxContainer"]
+autoplay = "Start"
+anims/GameOver = SubResource( 25 )
+anims/Pause = SubResource( 26 )
+anims/Start = SubResource( 27 )
+anims/Unpause = SubResource( 28 )
+script = SubResource( 29 )
+
+[node name="Background" type="Node2D" parent="."]
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Sky" type="Sprite" parent="Background"]
+pause_mode = 2
+self_modulate = Color( 0.0901961, 0.537255, 0.690196, 1 )
+position = Vector2( 304.033, 510.827 )
+scale = Vector2( 1, 1.49061 )
+texture = ExtResource( 18 )
+script = SubResource( 30 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+rain_modulate = Color( 0.698039, 0.568627, 0.862745, 1 )
+
+[node name="Tween" type="Tween" parent="Background/Sky"]
+
+[node name="Clouds" type="Node2D" parent="Background"]
+pause_mode = 2
+position = Vector2( -150, 100 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Clouds" type="CPUParticles2D" parent="Background/Clouds"]
+modulate = Color( 1, 1, 1, 0.25098 )
+self_modulate = Color( 0.317647, 0.65098, 0.768627, 1 )
+scale = Vector2( 0.6, 0.5 )
+lifetime = 3.0
+preprocess = 100.0
+speed_scale = 0.01
+texture = ExtResource( 5 )
+emission_shape = 2
+emission_rect_extents = Vector2( 1, 600 )
+spread = 5.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 1000.0
+initial_velocity_random = 0.3
+hue_variation_random = 0.1
+
+[node name="Clouds2" type="CPUParticles2D" parent="Background/Clouds"]
+modulate = Color( 1, 1, 1, 0.376471 )
+self_modulate = Color( 0.317647, 0.65098, 0.768627, 1 )
+scale = Vector2( 0.6, 0.5 )
+lifetime = 3.0
+preprocess = 100.0
+speed_scale = 0.02
+texture = ExtResource( 5 )
+emission_shape = 2
+emission_rect_extents = Vector2( 1, 600 )
+spread = 5.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 1000.0
+initial_velocity_random = 0.3
+hue_variation_random = 0.1
+
+[node name="Clouds3" type="CPUParticles2D" parent="Background/Clouds"]
+modulate = Color( 1, 1, 1, 0.0627451 )
+self_modulate = Color( 0.317647, 0.65098, 0.768627, 1 )
+scale = Vector2( 0.6, 0.5 )
+amount = 16
+lifetime = 3.0
+preprocess = 100.0
+speed_scale = 0.01
+texture = ExtResource( 5 )
+emission_shape = 2
+emission_rect_extents = Vector2( 1, 600 )
+spread = 5.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 1000.0
+initial_velocity_random = 0.3
+hue_variation_random = 0.1
+
+[node name="Forest" type="Node2D" parent="Background"]
+modulate = Color( 0.0470588, 0.317647, 0.278431, 1 )
+position = Vector2( 0, 152.119 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="DetailSprite" type="Sprite" parent="Background/Forest"]
+position = Vector2( 335.356, 260.567 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 19 )
+
+[node name="RectSprite" type="Sprite" parent="Background/Forest"]
+position = Vector2( 300, 754.249 )
+scale = Vector2( 1, 0.5 )
+texture = ExtResource( 18 )
+
+[node name="Tree" type="Node2D" parent="."]
+position = Vector2( 296.33, 877.519 )
+script = SubResource( 31 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="Sprite" type="Sprite" parent="Tree"]
+position = Vector2( 0, -374.902 )
+scale = Vector2( 0.2, 0.25 )
+texture = ExtResource( 8 )
+
+[node name="Tween" type="Tween" parent="Tree"]
+
+[node name="Player" type="Node2D" parent="." groups=["players"]]
+self_modulate = Color( 1, 1, 1, 0.5 )
+position = Vector2( 296.33, 877.519 )
+script = SubResource( 32 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="Laser" type="Node2D" parent="Player"]
+self_modulate = Color( 1, 1, 1, 0 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Player/Laser"]
+root_node = NodePath("../..")
+autoplay = "Idle"
+anims/Idle = SubResource( 33 )
+anims/Retract = SubResource( 34 )
+anims/Shoot = SubResource( 35 )
+
+[node name="Sprite" type="Sprite" parent="Player/Laser"]
+self_modulate = Color( 1, 1, 1, 0.25098 )
+position = Vector2( 0, -381.838 )
+scale = Vector2( 0.025, 2 )
+texture = ExtResource( 18 )
+
+[node name="LaserArea" type="Area2D" parent="Player/Laser" groups=["PlayerLasers"]]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/Laser/LaserArea"]
+position = Vector2( 0, 2000 )
+shape = SubResource( 36 )
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="Player/Laser"]
+stream = ExtResource( 21 )
+bus = "Gameplay"
+script = ExtResource( 2 )
+minimum_random_pitch = 0.5
+maximum_random_pitch = 1.5
+
+[node name="Light2D" type="Light2D" parent="Player/Laser"]
+modulate = Color( 1, 1, 1, 0.1 )
+position = Vector2( 0, -500 )
+scale = Vector2( 1, 999 )
+texture = SubResource( 38 )
+color = Color( 0.913725, 0.0313726, 0.278431, 1 )
+
+[node name="PlayerSprite" type="Sprite" parent="Player"]
+self_modulate = Color( 1, 0.984314, 0, 1 )
+scale = Vector2( 0.5, 0.5 )
+texture = ExtResource( 5 )
+
+[node name="Ground" type="Area2D" parent="."]
+position = Vector2( 304.033, 975.526 )
+script = SubResource( 39 )
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource( 40 )
+
+[node name="Sprite" type="Sprite" parent="Ground"]
+self_modulate = Color( 0.117647, 0.517647, 0.215686, 1 )
+scale = Vector2( 1, 0.26 )
+texture = ExtResource( 18 )
+
+[node name="Rain" type="Node2D" parent="."]
+
+[node name="RainParticles" type="CPUParticles2D" parent="Rain" groups=["RainParticleEmitters"]]
+pause_mode = 2
+position = Vector2( 300, -150 )
+scale = Vector2( 0.1, 1 )
+emitting = false
+amount = 96
+lifetime = 1.15
+texture = ExtResource( 18 )
+emission_shape = 2
+emission_rect_extents = Vector2( 3250, 100 )
+direction = Vector2( 0, 1 )
+gravity = Vector2( 0, 1000 )
+initial_velocity = 1000.0
+scale_amount = 0.05
+color = Color( 0.223529, 0.843137, 0.890196, 0.501961 )
+script = SubResource( 41 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="Rain/RainParticles"]
+stream = ExtResource( 10 )
+volume_db = -80.0
+autoplay = true
+bus = "Rain"
+script = SubResource( 42 )
+
+[node name="ToggleTimer" type="Timer" parent="Rain"]
+wait_time = 4096.0
+autostart = true
+script = SubResource( 43 )
+
+[node name="EnemySpawner" type="Node2D" parent="."]
+script = SubResource( 44 )
+__meta__ = {
+"_edit_lock_": true
+}
+enemy_forewardgoer_lv1 = ExtResource( 15 )
+enemy_forewardgoer_lv2 = ExtResource( 22 )
+enemy_forewardgoer_transparent_lv1 = ExtResource( 16 )
+enemy_forewardgoer_transparent_lv2 = ExtResource( 11 )
+enemy_zigzagger_lv1 = ExtResource( 9 )
+enemy_zigzagger_lv2 = ExtResource( 14 )
+enemy_sidewaysgoer_lv1_left = ExtResource( 24 )
+enemy_sidewaysgoer_lv1_right = ExtResource( 17 )
+
+[node name="SpawnTimer" type="Timer" parent="EnemySpawner"]
+autostart = true
+
+[node name="DayNightModulate" type="CanvasModulate" parent="."]
+pause_mode = 2
+color = Color( 0.262745, 0.466667, 0.733333, 1 )
+script = SubResource( 45 )
+
+[connection signal="pressed" from="HUD/Control/VBoxContainer/GameOverUI/RestartButton" to="HUD/Control/VBoxContainer/GameOverUI/RestartButton" method="_on_pressed"]
+[connection signal="value_changed" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderGameplay" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="value_changed" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderGameplay" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderGameplay" method="_on_value_changed"]
+[connection signal="value_changed" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderRain" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="value_changed" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderRain" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/VolumeSliderRain" method="_on_value_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleRain" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleRain" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleRain" method="_on_toggled"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleExplosions" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleExplosions" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ParticleToggleExplosions" method="_on_toggled"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ScreenShakeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ScreenShakeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/ScreenShakeToggle" method="_on_toggled"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DayNightCycleToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DayNightCycleToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DayNightCycleToggle" method="_on_toggled"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DaytimeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DaytimeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/DaytimeToggle" method="_on_toggled"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/NighttimeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings" method="_on_setting_changed"]
+[connection signal="toggled" from="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/NighttimeToggle" to="HUD/Control/VBoxContainer/PauseUI/HBoxContainer/Settings/NighttimeToggle" method="_on_toggled"]
+[connection signal="button_down" from="HUD/Control/VBoxContainer/PauseButton" to="Player" method="_on_pause_button_down"]
+[connection signal="pressed" from="HUD/Control/VBoxContainer/PauseButton" to="HUD/Control/VBoxContainer/PauseButton" method="_on_pressed"]
+[connection signal="pressed" from="HUD/Control/VBoxContainer/PauseButton" to="HUD/Control/VBoxContainer/PauseButton/Label" method="_on_button_pressed"]
+[connection signal="finished" from="Player/Laser/AudioStreamPlayer2D" to="Player/Laser/AudioStreamPlayer2D" method="_on_finished"]
+[connection signal="body_entered" from="Ground" to="Ground" method="_on_body_entered"]
+[connection signal="timeout" from="Rain/ToggleTimer" to="Rain/RainParticles" method="_on_toggle_timer_timeout"]
+[connection signal="timeout" from="Rain/ToggleTimer" to="Rain/ToggleTimer" method="_on_timeout"]
+[connection signal="timeout" from="EnemySpawner/SpawnTimer" to="EnemySpawner" method="_on_SpawnTimer_timeout"]
